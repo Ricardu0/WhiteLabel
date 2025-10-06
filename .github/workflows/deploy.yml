@@ -1,35 +1,33 @@
-name: Build and Push Docker Image to Azure Container Registry
+name: Build and Push to Azure Container Registry
 
 on:
   push:
     branches:
-      - main
-
-env:
-  ACR_NAME: acrlocadora           # nome do seu Azure Container Registry (sem .azurecr.io)
-  IMAGE_NAME: locadora-crud
+      - main  # ou 'master', se for o nome do seu branch principal
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
+      # 1️⃣ Checkout do código do repositório
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Login no Azure
-        uses: azure/login@v2
+      # 2️⃣ Login no Azure Container Registry
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Login no Azure Container Registry
+      # 3️⃣ Build da imagem Docker
+      - name: Build Docker image
         run: |
-          az acr login --name $ACR_NAME
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/locadora-crud:latest .
 
-      - name: Build da imagem Docker
+      # 4️⃣ Push da imagem pro ACR
+      - name: Push image to Azure Container Registry
         run: |
-          docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:latest .
-
-      - name: Push da imagem pro ACR
-        run: |
-          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:latest
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/locadora-crud:latest
