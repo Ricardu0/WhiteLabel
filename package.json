@@ -1,0 +1,23 @@
+{
+  "name": "whitelabel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ricardu0/WhiteLabel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ricardu0/WhiteLabel/issues"
+  },
+  "homepage": "https://github.com/Ricardu0/WhiteLabel#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
