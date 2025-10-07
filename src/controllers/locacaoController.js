@@ -65,7 +65,7 @@ export const update = async (req, res) => {
     if (!locacao) return res.status(404).json({ error: "Locação não encontrada" });
 
     // validate date fields if provided
-    const { inicio, fim, status } = req.body;
+    const { inicio, fim, status, veiculoId, clienteId } = req.body;
     if (inicio || fim) {
         const inicioDate = inicio ? new Date(inicio) : new Date(locacao.inicio);
         const fimDate = fim ? new Date(fim) : new Date(locacao.fim);
@@ -77,18 +77,53 @@ export const update = async (req, res) => {
         req.body.fim = fimDate;
     }
 
-    // perform update
+    // If veiculoId changed, check if the new vehicle is available
+    if (veiculoId && veiculoId !== locacao.veiculoId) {
+        // Make sure the new vehicle exists
+        const newVehicle = await Veiculo.findByPk(veiculoId);
+        if (!newVehicle) {
+            return res.status(404).json({ error: 'Veículo não encontrado' });
+        }
+        
+        // Check if the new vehicle is available if the rental is active
+        if ((status || locacao.status) === 'ativa' && !newVehicle.disponivel) {
+            return res.status(409).json({ error: 'Veículo selecionado não está disponível' });
+        }
+    }
+    
+    // If clienteId changed, check if the new client exists
+    if (clienteId && clienteId !== locacao.clienteId) {
+        const newClient = await Cliente.findByPk(clienteId);
+        if (!newClient) {
+            return res.status(404).json({ error: 'Cliente não encontrado' });
+        }
+    }
+
+    // Store previous vehicle ID for cleanup
+    const previousVeiculoId = locacao.veiculoId;
     const previousStatus = locacao.status;
+    
+    // perform update
     await locacao.update(req.body);
 
-    // if status changed to cancelada, free the vehicle; if changed to ativa, mark unavailable
-    if (status && locacao.veiculoId) {
-        const v = await Veiculo.findByPk(locacao.veiculoId);
-        if (v) {
-            if (status === 'cancelada') {
-                await v.update({ disponivel: true });
-            } else if (status === 'ativa') {
-                await v.update({ disponivel: false });
+    // Handle vehicle availability updates
+    const currentStatus = status || locacao.status;
+    
+    // If we changed vehicles or status, update vehicle availability
+    if (veiculoId || status) {
+        // If we switched vehicles or canceled, make the old one available
+        if ((veiculoId && veiculoId !== previousVeiculoId) || currentStatus === 'cancelada') {
+            const oldVehicle = await Veiculo.findByPk(previousVeiculoId);
+            if (oldVehicle) {
+                await oldVehicle.update({ disponivel: true });
+            }
+        }
+        
+        // If the rental is active, make the new vehicle unavailable
+        if (currentStatus === 'ativa' && locacao.veiculoId) {
+            const newVehicle = await Veiculo.findByPk(locacao.veiculoId);
+            if (newVehicle) {
+                await newVehicle.update({ disponivel: false });
             }
         }
     }

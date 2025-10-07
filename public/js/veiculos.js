@@ -1,4 +1,4 @@
-import { showStatus, fetchWithCache, getFromCache, formatCurrency } from './utils.js';
+import { showStatus, fetchWithCache, getFromCache, formatCurrency, handleFormSubmit } from './utils.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     // Cache para armazenar os veículos
@@ -112,6 +112,12 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         
+        // Desabilita o botão para evitar múltiplos envios
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Processando...";
+        
         const getVeiculoData = () => {
             return {
                 marca: document.getElementById("marca").value.trim(),
@@ -170,6 +176,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 successMessage
             );
         }
+        
+        // Reativa o botão após o processamento
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     });
     
     // Evento para botões de edição e exclusão

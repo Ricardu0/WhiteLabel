@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const errorEl = document.getElementById('locacoesError');
     const locacoesDebug = document.getElementById('locacoesDebug');
+    const searchInput = document.getElementById('search-locacao');
+    const filterButtons = document.querySelectorAll('.filter-btn');
     
     // Array to store all locations for caching
     let locacoesCache = [];
@@ -44,31 +46,92 @@ document.addEventListener('DOMContentLoaded', () => {
             locacoesCache = locacoes;
             
             debug('listarLocacoes: recebido registros ' + (Array.isArray(locacoes) ? locacoes.length : 0));
-            const lista = document.getElementById("listaLocacoes");
-            lista.innerHTML = "";
-            locacoes.forEach(l => {
-                const statusBadge = l.status === 'cancelada' ? '<span class="badge bg-danger me-2">cancelada</span>' : (l.status === 'finalizada' ? '<span class="badge bg-secondary me-2">finalizada</span>' : '<span class="badge bg-success me-2">ativa</span>');
-                const item = document.createElement('div');
-                item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                item.innerHTML = `
-                        <div>
-                                ${statusBadge}
-                                <strong>${l.inicio ? new Date(l.inicio).toLocaleString() : 'N/A'}</strong>
-                                <div><small>${l.Veiculo ? l.Veiculo.marca + ' ' + l.Veiculo.modelo : ''}</small></div>
-                                <div><small>Cliente: ${l.Cliente?.nome || 'Desconhecido'}</small></div>
-                        </div>
-                        <div>
-                                <button class="btn btn-sm btn-outline-secondary edit" data-id="${l.id}">Editar</button>
-                                <button class="btn btn-sm btn-outline-danger cancel" data-id="${l.id}">Cancelar</button>
-                        </div>
-                `;
-                lista.appendChild(item);
-            });
+            renderLocacoes(locacoes);
             errorEl.classList.add('d-none');
+            
+            // Atualizar contador de locações
+            updateLocacaoCount();
         } catch (err) {
             debug('listarLocacoes: erro ' + (err && err.message ? err.message : String(err)));
             errorEl.textContent = 'Erro ao carregar lista de locações: ' + err.message;
             errorEl.classList.remove('d-none');
+        }
+    }
+    
+    function renderLocacoes(locacoes) {
+        const lista = document.getElementById("listaLocacoes");
+        lista.innerHTML = "";
+        
+        // Aplicar filtros se houver pesquisa ativa
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const activeFilter = document.querySelector('.filter-btn.active');
+        const filterValue = activeFilter ? activeFilter.getAttribute('data-filter') : 'todas';
+        
+        locacoes.forEach(l => {
+            const statusClass = l.status === 'cancelada' ? 'cancelada' : (l.status === 'finalizada' ? 'finalizada' : 'ativa');
+            const statusBadge = l.status === 'cancelada' ? 
+                '<span class="status-pill bg-danger text-white me-2">Cancelada</span>' : 
+                (l.status === 'finalizada' ? 
+                    '<span class="status-pill bg-secondary text-white me-2">Finalizada</span>' : 
+                    '<span class="status-pill bg-success text-white me-2">Ativa</span>');
+            
+            const veiculoInfo = l.Veiculo ? `${l.Veiculo.marca} ${l.Veiculo.modelo}` : 'Veículo não especificado';
+            const clienteInfo = l.Cliente?.nome || 'Cliente não especificado';
+            const dataInicio = l.inicio ? new Date(l.inicio).toLocaleString() : 'Data não especificada';
+            const dataFim = l.fim ? new Date(l.fim).toLocaleString() : 'Data não especificada';
+            
+            // Verificar se o item deve ser exibido com base nos filtros
+            const text = `${veiculoInfo} ${clienteInfo} ${dataInicio} ${dataFim} ${l.status}`.toLowerCase();
+            const matchesSearch = searchTerm === '' || text.includes(searchTerm);
+            const matchesFilter = filterValue === 'todas' || l.status === filterValue;
+            
+            if (matchesSearch && matchesFilter) {
+                const item = document.createElement('div');
+                item.className = `list-group-item locacao-card ${statusClass} d-flex justify-content-between align-items-center`;
+                item.setAttribute('data-status', l.status);
+                item.innerHTML = `
+                        <div>
+                                ${statusBadge}
+                                <strong>${dataInicio}</strong>
+                                <div><small class="text-muted"><i class="bi bi-car-front me-1"></i>${veiculoInfo}</small></div>
+                                <div><small class="text-muted"><i class="bi bi-person me-1"></i>${clienteInfo}</small></div>
+                        </div>
+                        <div>
+                                <button class="btn btn-sm btn-outline-secondary edit" data-id="${l.id}">
+                                    <i class="bi bi-pencil-square me-1"></i>Editar
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger cancel" data-id="${l.id}">
+                                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                                </button>
+                        </div>
+                `;
+                lista.appendChild(item);
+            }
+        });
+        
+        // Mostrar mensagem quando não há resultados
+        if (lista.children.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'text-center p-4';
+            emptyMessage.innerHTML = `
+                <i class="bi bi-search text-muted fs-2"></i>
+                <p class="text-muted mt-2">Nenhuma locação encontrada para esta busca.</p>
+            `;
+            lista.appendChild(emptyMessage);
+        }
+    }
+    
+    // Função para atualizar o contador de locações
+    function updateLocacaoCount() {
+        const totalLocacoes = locacoesCache.length;
+        const visibleLocacoes = document.querySelectorAll('#listaLocacoes .locacao-card').length;
+        const countBadge = document.getElementById('total-locacoes');
+        if (countBadge) {
+            if (visibleLocacoes < totalLocacoes) {
+                countBadge.textContent = `${visibleLocacoes} de ${totalLocacoes} locação(ões)`;
+            } else {
+                countBadge.textContent = `${totalLocacoes} locação(ões)`;
+            }
         }
     }
 
@@ -261,8 +324,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Configurar busca e filtros
+    function setupSearchAndFilters() {
+        // Busca
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                renderLocacoes(locacoesCache);
+                updateLocacaoCount();
+            });
+        }
+        
+        // Filtros de status
+        if (filterButtons) {
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remover classe active de todos os botões
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    // Adicionar classe active ao botão clicado
+                    this.classList.add('active');
+                    renderLocacoes(locacoesCache);
+                    updateLocacaoCount();
+                });
+            });
+        }
+    }
+    
     // initial load
     loadSelects();
     listarLocacoes();
+    setupSearchAndFilters();
 
 });

@@ -12,12 +12,26 @@ document.addEventListener('DOMContentLoaded', () => {
     btnLogin.addEventListener('click', async () => {
         const email = loginEmail.value.trim();
         if (!email) return alert('Informe seu email');
-        const res = await fetch(`/clientes`);
-        const clientes = await res.json();
-        const client = clientes.find(c => c.email === email);
-        if (!client) return alert('Cliente não encontrado');
-        currentClient = client;
-        showClientArea(client);
+        
+        try {
+            console.log('Buscando clientes...');
+            const res = await fetch(`/clientes`);
+            if (!res.ok) {
+                throw new Error(`Erro ao buscar clientes: ${res.status}`);
+            }
+            
+            const clientes = await res.json();
+            console.log('Clientes recebidos:', clientes);
+            
+            const client = clientes.find(c => c.email === email);
+            if (!client) return alert('Cliente não encontrado');
+            
+            currentClient = client;
+            showClientArea(client);
+        } catch (error) {
+            console.error('Erro no login:', error);
+            alert(`Erro ao buscar clientes: ${error.message}`);
+        }
     });
 
     function showClientArea(client) {

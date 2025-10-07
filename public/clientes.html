@@ -5,34 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Clientes - Locadora E-spike</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/styles.css">
-    <style>.card-click{cursor:pointer}</style>
+    <style>
+        .card-click {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .card-click:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-hover);
+        }
+        .cliente-item {
+            border-left: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .cliente-item:hover {
+            border-left: 4px solid var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        .cliente-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+    </style>
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-expand-lg shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="/">E-spike</a>
+            <a class="navbar-brand" href="/"><i class="bi bi-car-front-fill me-2"></i>E-spike</a>
             <div>
-                <a class="btn btn-sm btn-outline-primary" href="/veiculos.html">Veículos</a>
-                <a class="btn btn-sm btn-outline-secondary" href="/locacoes.html">Locações</a>
+                <a class="btn btn-sm btn-outline-primary" href="/veiculos.html"><i class="bi bi-car-front me-1"></i> Veículos</a>
+                <a class="btn btn-sm btn-outline-secondary" href="/clientes.html"><i class="bi bi-person me-1"></i> Clientes</a>
+                <a class="btn btn-sm btn-outline-secondary" href="/locacoes.html"><i class="bi bi-calendar-check me-1"></i> Locações</a>
             </div>
         </div>
     </nav>
     <main class="container py-4">
-        <h2>Clientes</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Início</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Clientes</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-people text-primary me-2"></i>Gerenciamento de Clientes</h1>
+            <span class="badge bg-primary" id="total-clientes"></span>
+        </div>
+        
         <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-person-plus me-2 text-primary"></i>Novo Cliente</h5>
+            </div>
             <div class="card-body">
-                <div id="statusMessage" class="alert alert-success d-none mb-3"></div>
-                <p class="small text-muted" id="editInstructions" style="display: none;">Altere os dados do cliente e clique em <strong>Salvar</strong>. O botão ficará ativo quando houver mudanças.</p>
+                <div id="statusMessage" class="alert alert-success d-none mb-3">
+                    <i class="bi bi-check-circle-fill me-2"></i><span id="statusText"></span>
+                </div>
+                <p class="text-muted mb-3" id="editInstructions" style="display: none;">
+                    <i class="bi bi-info-circle me-2"></i>Altere os dados do cliente e clique em <strong>Salvar</strong>. O botão ficará ativo quando houver mudanças.
+                </p>
                 <form id="formCliente" class="row g-3">
-                    <div class="col-md-4"><input id="nome" class="form-control" placeholder="Nome" required></div>
-                    <div class="col-md-4"><input id="email" class="form-control" placeholder="Email" required></div>
-                    <div class="col-md-3"><input id="telefone" class="form-control" placeholder="Telefone" required></div>
-                    <div class="col-md-1">
-                        <button id="clienteSubmitBtn" class="btn btn-primary w-100" type="submit">Cadastrar</button>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input id="nome" class="form-control" placeholder="Nome" required>
+                            <label for="nome"><i class="bi bi-person field-icon"></i>Nome completo</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input id="email" class="form-control" placeholder="Email" required type="email">
+                            <label for="email"><i class="bi bi-envelope field-icon"></i>E-mail</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-floating">
+                            <input id="telefone" class="form-control" placeholder="Telefone" required>
+                            <label for="telefone"><i class="bi bi-telephone field-icon"></i>Telefone</label>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <button id="cancelEditBtn" type="button" class="btn btn-secondary w-100 d-none">Cancelar</button>
+                        <button id="clienteSubmitBtn" class="btn btn-primary w-100 h-100" type="submit">
+                            <i class="bi bi-plus-lg me-2"></i>Cadastrar
+                        </button>
+                    </div>
+                    <div class="col-md-1">
+                        <button id="cancelEditBtn" type="button" class="btn btn-outline-secondary w-100 h-100 d-none">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -42,9 +109,56 @@
         </div>
 
         <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-ul me-2 text-primary"></i>Lista de Clientes</h5>
+                <div class="input-group w-auto">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="search-cliente" placeholder="Buscar cliente...">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="lista" class="list-group list-group-flush border-0"></div>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light">
             <div class="card-body">
-                <h5 class="card-title">Lista de clientes</h5>
-                <div id="lista" class="list-group"></div>
+                <h5 class="card-title mb-3"><i class="bi bi-lightbulb me-2 text-primary"></i>Dicas</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex">
+                            <div class="me-3 text-primary">
+                                <i class="bi bi-info-circle-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h6>Clique em um cliente</h6>
+                                <p class="text-muted small">Para editar as informações ou visualizar o histórico de locações.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex">
+                            <div class="me-3 text-primary">
+                                <i class="bi bi-pencil-square fs-3"></i>
+                            </div>
+                            <div>
+                                <h6>Edição rápida</h6>
+                                <p class="text-muted small">Use o formulário acima para atualizar os dados rapidamente.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex">
+                            <div class="me-3 text-primary">
+                                <i class="bi bi-clock-history fs-3"></i>
+                            </div>
+                            <div>
+                                <h6>Histórico de locações</h6>
+                                <p class="text-muted small">Veja todas as locações anteriores de cada cliente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -54,19 +168,80 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Histórico de Locações</h5>
+                        <h5 class="modal-title"><i class="bi bi-clock-history me-2 text-primary"></i>Histórico de Locações</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div id="historyBody">Carregando...</div>
+                        <div id="historyBody" class="p-2">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-lg me-2"></i>Fechar
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
+    <footer class="bg-white py-4 mt-5 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0 text-muted">© 2025 E-spike Locadora. Todos os direitos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-decoration-none me-3 text-muted"><i class="bi bi-question-circle me-1"></i>Ajuda</a>
+                    <a href="#" class="text-decoration-none me-3 text-muted"><i class="bi bi-shield-check me-1"></i>Privacidade</a>
+                    <a href="#" class="text-decoration-none text-muted"><i class="bi bi-file-text me-1"></i>Termos</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/clientes.js"></script>
+    
+    <script>
+        // Adicionar comportamento de busca
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-cliente');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const listItems = document.querySelectorAll('#lista a');
+                    
+                    listItems.forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+            
+            // Atualizar contador de clientes
+            function updateClientCount() {
+                const totalClientes = document.querySelectorAll('#lista a').length;
+                const countBadge = document.getElementById('total-clientes');
+                if (countBadge) {
+                    countBadge.textContent = `${totalClientes} cliente${totalClientes !== 1 ? 's' : ''}`;
+                }
+            }
+            
+            // Executar após carregar os clientes
+            setTimeout(updateClientCount, 1000);
+            
+            // Observar mudanças na lista
+            const observer = new MutationObserver(updateClientCount);
+            const lista = document.getElementById('lista');
+            if (lista) {
+                observer.observe(lista, { childList: true, subtree: true });
+            }
+        });
+    </script>
 </body>
 </html>

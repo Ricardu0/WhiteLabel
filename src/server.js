@@ -47,14 +47,17 @@ async function startServer() {
         }
         
         // Iniciar o servidor
-        app.listen(PORT, '0.0.0.0', () => {
+        const server = app.listen(PORT, '0.0.0.0', () => {
             console.log(`Servidor rodando na porta ${PORT}`);
             console.log(`Ambiente: ${process.env.NODE_ENV || 'desenvolvimento'}`);
         });
         
+        // Armazenar a referência do servidor em uma variável global
+        global.httpServer = server;
+        
         // Tratamento de sinais para encerramento gracioso
-        process.on('SIGTERM', gracefulShutdown);
-        process.on('SIGINT', gracefulShutdown);
+        process.on('SIGTERM', () => gracefulShutdown(server));
+        process.on('SIGINT', () => gracefulShutdown(server));
         
     } catch (err) {
         console.error("Erro fatal ao iniciar aplicação:", err);
@@ -63,14 +66,25 @@ async function startServer() {
 }
 
 // Função para encerramento gracioso
-function gracefulShutdown() {
+function gracefulShutdown(server) {
     console.log('Recebido sinal de encerramento. Fechando conexões...');
     
-    // Fechar conexões do servidor
-    server?.close(() => {
-        console.log('Servidor HTTP encerrado.');
-        
-        // Fechar conexão com banco de dados
+    // Fechar o servidor HTTP primeiro
+    if (server) {
+        server.close(() => {
+            console.log('Servidor HTTP encerrado.');
+            
+            // Depois fechar a conexão com o banco de dados
+            sequelize.close().then(() => {
+                console.log('Conexão com banco de dados encerrada.');
+                process.exit(0);
+            }).catch((err) => {
+                console.error('Erro ao fechar conexão com banco de dados:', err);
+                process.exit(1);
+            });
+        });
+    } else {
+        // Caso não tenha servidor, fechar só o banco
         sequelize.close().then(() => {
             console.log('Conexão com banco de dados encerrada.');
             process.exit(0);
@@ -78,7 +92,7 @@ function gracefulShutdown() {
             console.error('Erro ao fechar conexão com banco de dados:', err);
             process.exit(1);
         });
-    });
+    }
     
     // Se o servidor não encerrar em 10s, forçar saída
     setTimeout(() => {
