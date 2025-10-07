@@ -5,7 +5,8 @@
   "description": "Sistema de locadora de veículos E-spike",
   "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"No tests defined - skipping tests\" && exit 0",
+    "build": "echo \"No build steps required\" && exit 0",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "postinstall": "node -e \"try { require('fs').mkdirSync('./logs'); } catch(e) { /* ignore */ }\"",
