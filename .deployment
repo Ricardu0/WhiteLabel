@@ -1,0 +1,9 @@
+[config]
+# Comando para implantação personalizada (usar deploy.cmd se existir)
+command = bash deploy.sh
+
+# Projeto a ser implantado
+project = .
+
+# Não exclua arquivos durante a implantação que não estejam no repositório
+SCM_TOUCH_WEBCONFIG_AFTER_DEPLOYMENT = true

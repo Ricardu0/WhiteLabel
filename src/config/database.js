@@ -4,37 +4,46 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// Importar configuração específica do Azure
+import configureAzureMySQL from "./azure.js";
+
 // Resolve __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Look for .env in multiple likely locations because some IDEs set different cwd
-const candidates = [
-    path.resolve(process.cwd(), ".env"),
-    path.resolve(process.cwd(), "src", ".env"),
-    path.resolve(__dirname, "..", ".env"),
-    path.resolve(__dirname, "..", "..", ".env"),
-    path.resolve(process.cwd(), "..", ".env")
-];
+// Verificar se estamos no Azure e configurar a conexão MySQL
+const isAzureConfigured = configureAzureMySQL();
 
-let envFound = null;
-for (const p of candidates) {
-    try {
-        if (fs.existsSync(p)) {
-            envFound = p;
-            break;
+if (!isAzureConfigured) {
+    // Se não estiver no Azure, procurar arquivo .env
+    // Look for .env in multiple likely locations because some IDEs set different cwd
+    const candidates = [
+        path.resolve(process.cwd(), ".env"),
+        path.resolve(process.cwd(), "src", ".env"),
+        path.resolve(__dirname, "..", ".env"),
+        path.resolve(__dirname, "..", "..", ".env"),
+        path.resolve(process.cwd(), "..", ".env")
+    ];
+
+    let envFound = null;
+    for (const p of candidates) {
+        try {
+            if (fs.existsSync(p)) {
+                envFound = p;
+                break;
+            }
+        } catch (err) {
+            // ignore
         }
-    } catch (err) {
-        // ignore
     }
-}
 
-if (envFound) {
-    dotenv.config({ path: envFound });
-    console.log(`Loaded .env from: ${envFound}`);
-} else {
-    console.log(`.env not found in candidates: ${candidates.join(', ')}`);
-    console.log('Using environment variables or defaults');
+    if (envFound) {
+        dotenv.config({ path: envFound });
+        console.log(`Loaded .env from: ${envFound}`);
+    } else {
+        console.log(`.env not found in candidates: ${candidates.join(', ')}`);
+        console.log('Using environment variables or defaults');
+    }
 }
 
 // Usar variáveis de ambiente com fallbacks para valores padrão

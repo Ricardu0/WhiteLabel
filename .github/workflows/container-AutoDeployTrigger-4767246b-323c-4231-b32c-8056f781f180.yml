@@ -1,4 +1,4 @@
-name: Trigger auto deployment for container
+name: Deploy to Azure Web App
 
 # When this action will be executed
 on:
@@ -24,6 +24,24 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: npm install and build
+        run: |
+          npm ci
+          npm run build --if-present
+        env:
+          # Definir variáveis de ambiente do banco de dados
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_SSL: ${{ secrets.DB_SSL }}
+
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -31,19 +49,12 @@ jobs:
           tenant-id: ${{ secrets.CONTAINER_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.CONTAINER_AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build and push container image to registry
-        uses: azure/container-apps-deploy-action@v2
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
         with:
-          appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
-          registryUrl: 
-          registryUsername: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
-          containerAppName: container
-          resourceGroup: provinha
-          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
+          app-name: 'whitelabel-app'  # Nome do seu Web App no Azure
+          slot-name: 'production'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
 
 

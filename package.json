@@ -2,12 +2,14 @@
   "type": "module",
   "name": "whitelabel",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Sistema de locadora de veículos E-spike",
+  "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "postinstall": "node -e \"try { require('fs').mkdirSync('./logs'); } catch(e) { /* ignore */ }\"",
+    "azure-postbuild": "echo Azure post-build script executed"
   },
   "repository": {
     "type": "git",
