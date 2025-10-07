@@ -1,4 +1,4 @@
-# Documentação de Implantação do WhiteLabel na Azure
+# Documentação de Implantação do WhiteLabel na Azuree
 
 Este documento descreve o processo de implantação da aplicação WhiteLabel em um único container na Azure usando Azure Container Apps.
 

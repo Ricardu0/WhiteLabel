@@ -1,4 +1,4 @@
-name: Build and Push to Azure Container Registry
+name: Build and Push to Azure Container Registry aaa
 # DESATIVADO - usando azure-deploy.yml em vez deste workflow
 
 on:

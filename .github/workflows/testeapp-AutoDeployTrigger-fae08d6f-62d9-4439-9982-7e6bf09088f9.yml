@@ -1,5 +1,5 @@
 name: Trigger auto deployment for testeapp
-# DESATIVADO - usando azure-deploy.yml em vez deste workflow
+# DESATIVADO - usando azure-deploy.yml em vez deste workflow, fique em paz
 
 # When this action will be executed
 on:

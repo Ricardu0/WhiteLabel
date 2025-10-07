@@ -22,3 +22,4 @@ req.on('error', e => {
 });
 
 req.end();
+// Run this script with: node scripts/test_fetch.js

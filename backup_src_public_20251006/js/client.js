@@ -73,3 +73,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+// File: .vscode/settings.json

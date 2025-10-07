@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script de implantação para Azure Web App
+# Script de implantação para Azure Web App, localmente
 
 # Abortar em caso de erro
 set -e

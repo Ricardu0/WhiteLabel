@@ -1,4 +1,4 @@
-# Como resolver o erro de DNS do Container Registry
+# Como resolver o erro de DNS do Container Registry, em caso de aks, e tudo mais.
 
 O erro que você está enfrentando:
 ```

@@ -1,4 +1,4 @@
-# Criando e Configurando Azure Container Registry (ACR)
+# Criando e Configurando Azure Container Registry (ACR) - do modo basico
 
 Este documento explica como criar e configurar um Azure Container Registry (ACR) antes de fazer o deploy do seu aplicativo WhiteLabel para a Azure.
 

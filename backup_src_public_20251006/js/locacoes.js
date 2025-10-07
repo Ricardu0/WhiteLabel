@@ -108,3 +108,5 @@ document.getElementById('listaLocacoes').addEventListener('click', async (e) => 
 });
 
 listarLocacoes();
+
+// load vehicles and clients for the selects

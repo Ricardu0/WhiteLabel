@@ -1,5 +1,5 @@
 [config]
-# Comando para implantação personalizada (usar deploy.cmd se existir)
+# Comando para implantação personalizada (usar deploy.cmd se existir) se possivel
 command = bash deploy.sh
 
 # Projeto a ser implantado

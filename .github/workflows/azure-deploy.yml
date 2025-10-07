@@ -5,7 +5,7 @@ on:
     branches:
       - main
   workflow_dispatch:
-    # Permite executar o workflow manualmente
+    # Permite executar o workflow manualmente de maneira eficiente e controlada
 
 env:
   AZURE_RESOURCE_GROUP: whitelabel-rg

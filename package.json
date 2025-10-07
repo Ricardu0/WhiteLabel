@@ -2,7 +2,7 @@
   "type": "module",
   "name": "whitelabel",
   "version": "1.0.0",
-  "description": "Sistema de locadora de veículos E-spike",
+  "description": "Sistema de locadora de veículos Sarai",
   "main": "src/server.js",
   "scripts": {
     "test": "echo \"No tests defined - skipping tests\" && exit 0",

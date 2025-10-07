@@ -1,4 +1,4 @@
-# Configuração de Secrets para Deploy no Azure Web App
+# Configuração de Secrets para Deploy no Azure Web App - caso queira usar com webapp
 
 Para resolver os problemas de deploy no Azure Web App, é necessário configurar os seguintes secrets no seu repositório GitHub:
 

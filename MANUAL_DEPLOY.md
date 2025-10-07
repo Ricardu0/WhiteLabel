@@ -1,4 +1,4 @@
-# Implantação Manual na Azure
+# Implantação Manual na Azuree
 
 Este documento explica como implantar manualmente a aplicação WhiteLabel na Azure, sem a necessidade de configurar Service Principal ou automação completa pelo GitHub Actions.
 

@@ -1,6 +1,6 @@
 FROM node:20
 
-# Criar diretório de trabalho
+# Criar diretório de trabalho, caso queira rodar no webapp, ou no acr/aci
 WORKDIR /home/site/wwwroot
 
 # Copiar arquivos de dependências primeiro para aproveitar o cache do Docker

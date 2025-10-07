@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Print environment info
+# Print environment infoo
 echo "NODE_ENV: $NODE_ENV"
 echo "PORT: $PORT"
 echo "WEBSITES_PORT: $WEBSITES_PORT"

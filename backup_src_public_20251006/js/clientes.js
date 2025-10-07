@@ -72,3 +72,4 @@ document.getElementById("lista").addEventListener("click", async (e) => {
 });
 
 listarClientes();
+// File: .vscode/settings.json
