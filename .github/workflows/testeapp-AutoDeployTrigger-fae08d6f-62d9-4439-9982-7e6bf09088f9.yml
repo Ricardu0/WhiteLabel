@@ -1,11 +1,12 @@
 name: Trigger auto deployment for testeapp
+# DESATIVADO - usando azure-deploy.yml em vez deste workflow
 
 # When this action will be executed
 on:
   # Automatically trigger it when detected changes in repo
   push:
     branches: 
-      [ main ]
+      [ disabled-main ]
     paths:
     - '**'
     - '.github/workflows/testeapp-AutoDeployTrigger-fae08d6f-62d9-4439-9982-7e6bf09088f9.yml'

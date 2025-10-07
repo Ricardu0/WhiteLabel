@@ -1,9 +1,10 @@
 name: Build and Push to Azure Container Registry
+# DESATIVADO - usando azure-deploy.yml em vez deste workflow
 
 on:
   push:
     branches:
-      - main  # ou 'master', se for o nome do seu branch principal
+      - disabled-main  # desativado temporariamente
 
 jobs:
   build-and-push:
