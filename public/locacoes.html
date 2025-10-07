@@ -12,13 +12,15 @@
         <div class="container">
             <a class="navbar-brand" href="/">E-spike</a>
             <div>
-                <a class="btn btn-sm btn-outline-primary" href="/admin/veiculos">Veículos</a>
-                <a class="btn btn-sm btn-outline-secondary" href="/admin/clientes">Clientes</a>
+                <a class="btn btn-sm btn-outline-primary" href="/veiculos.html">Veículos</a>
+                <a class="btn btn-sm btn-outline-secondary" href="/clientes.html">Clientes</a>
             </div>
         </div>
     </nav>
     <main class="container py-4">
         <h2>Locações</h2>
+        <div id="locacoesError" class="alert alert-danger d-none" role="alert"></div>
+        <div id="locacoesDebug" class="alert alert-secondary d-none" role="alert" style="white-space:pre-wrap;font-family:monospace;max-height:200px;overflow:auto;"></div>
         <div class="card mb-4">
             <div class="card-body">
                 <form id="formLocacao" class="row g-3">
@@ -50,6 +52,7 @@
                 <div id="listaLocacoes" class="list-group"></div>
             </div>
         </div>
+        
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/locacoes.js"></script>

@@ -11,7 +11,7 @@ async function listarClientes() {
         item.innerHTML = `
             <div>
                 <strong>${c.nome}</strong><br>
-                <small>${c.email} • ${c.telefone}</small>
+                <small>${c.email}  ${c.telefone}</small>
             </div>
             <div>
                 <button class="btn btn-sm btn-outline-secondary edit" data-id="${c.id}">Editar</button>

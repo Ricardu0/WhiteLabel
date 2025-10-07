@@ -1,0 +1,389 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const API_URL = '/locacoes';
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const locacaoData = params.get('data'); // Get serialized data if available
+  
+  const errorEl = document.getElementById('editError');
+  const veiculoInfo = document.getElementById('veiculoInfo');
+  const clienteInfo = document.getElementById('clienteInfo');
+  const locInicio = document.getElementById('locInicio');
+  const locFim = document.getElementById('locFim');
+  const locStatus = document.getElementById('locStatus');
+  const locacaoId = document.getElementById('locacaoId');
+  const saveBtn = document.getElementById('saveBtn');
+  
+  // Store the original data for comparing changes
+  let originalData = null;
+
+  function toInput(d) { 
+    return d ? new Date(d).toISOString().slice(0,16) : ''; 
+  }
+  
+  // Function to show status messages
+  function showStatus(message, isError = false) {
+    errorEl.textContent = message;
+    if (isError) {
+      errorEl.classList.remove('d-none', 'alert-success');
+      errorEl.classList.add('alert-danger');
+    } else {
+      errorEl.classList.remove('d-none', 'alert-danger');
+      errorEl.classList.add('alert-success');
+    }
+  }
+  
+  // Function to check if form data has changed compared to original data
+  function hasFormChanged() {
+    if (!originalData) return false;
+    
+    const currentInicio = locInicio.value;
+    const currentFim = locFim.value;
+    const currentStatus = locStatus.value;
+    
+    return currentInicio !== originalData.inicio || 
+           currentFim !== originalData.fim || 
+           currentStatus !== originalData.status;
+  }
+  
+  // Function to update save button state
+  function updateSaveButtonState() {
+    saveBtn.disabled = !hasFormChanged();
+  }
+
+  if (!id) {
+    showStatus('ID da locação não informado', true);
+    saveBtn.disabled = true;
+    return;
+  }
+
+  async function load() {
+    try {
+      // First try to use data passed in URL parameter if available
+      if (locacaoData) {
+        try {
+          const loc = JSON.parse(decodeURIComponent(locacaoData));
+          populateForm(loc);
+          return;
+        } catch (parseErr) {
+          console.error('Failed to parse location data from URL:', parseErr);
+        }
+      }
+      
+      // Try to get all locations and filter by ID
+      const res = await fetch(`${API_URL}`);
+      
+      if (!res.ok) {
+        throw new Error('Não foi possível carregar as locações. Status: ' + res.status);
+      }
+      
+      const locacoes = await res.json();
+      const loc = locacoes.find(l => l.id == id);
+      
+      if (!loc) {
+        throw new Error(`Locação com ID ${id} não encontrada.`);
+      }
+      
+      populateForm(loc);
+    } catch (err) {
+      console.error('Error loading location:', err);
+      showStatus('Erro ao carregar locação: ' + err.message, true);
+      saveBtn.disabled = true;
+    }
+  }
+  
+  function populateForm(loc) {
+    locacaoId.value = loc.id;
+    veiculoInfo.value = loc.Veiculo ? `${loc.Veiculo.marca} ${loc.Veiculo.modelo} (${loc.Veiculo.placa || ''})` : 'Veículo não especificado';
+    clienteInfo.value = loc.Cliente ? `${loc.Cliente.nome} (${loc.Cliente.email || ''})` : 'Cliente não especificado';
+    locInicio.value = toInput(loc.inicio);
+    locFim.value = toInput(loc.fim);
+    locStatus.value = loc.status || 'ativa';
+    
+    // Store original data for comparison
+    originalData = {
+      inicio: locInicio.value,
+      fim: locFim.value,
+      status: locStatus.value
+    };
+    
+    // Initial state of save button
+    updateSaveButtonState();
+    
+    // Add event listeners to detect changes
+    ['locInicio', 'locFim', 'locStatus'].forEach(id => {
+      document.getElementById(id).addEventListener('change', updateSaveButtonState);
+    });
+  }
+
+  function validate() {
+    const a = new Date(locInicio.value);
+    const b = new Date(locFim.value);
+    if (isNaN(a) || isNaN(b) || a >= b) {
+      showStatus('Data de início deve ser anterior à data de fim', true);
+      return false;
+    }
+    errorEl.classList.add('d-none');
+    return true;
+  }
+
+  document.getElementById('locacaoEditForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Don't submit if nothing changed
+    if (!hasFormChanged()) {
+      showStatus('Nenhuma alteração detectada', true);
+      return;
+    }
+    
+    // Validate form data
+    if (!validate()) return;
+    
+    const inicio = locInicio.value;
+    const fim = locFim.value;
+    const status = locStatus.value;
+    
+    try {
+      showStatus('Salvando alterações...', false);
+      saveBtn.disabled = true;
+      
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inicio, fim, status })
+      });
+      
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'status ' + res.status);
+      }
+      
+      // Update original data after successful save
+      originalData = { inicio, fim, status };
+      updateSaveButtonState();
+      
+      showStatus('Locação atualizada com sucesso!', false);
+      
+      // Add a short delay before redirecting to show the success message
+      setTimeout(() => {
+        window.location.href = '/locacoes.html';
+      }, 1500);
+      
+    } catch (err) {
+      console.error('Error updating location:', err);
+      showStatus('Erro ao salvar: ' + err.message, true);
+      saveBtn.disabled = false;
+    }
+  });
+
+  // Add cancel button listener to confirm before navigating away if there are changes
+  document.querySelector('a.btn-secondary').addEventListener('click', (e) => {
+    if (hasFormChanged()) {
+      if (!confirm('Você tem alterações não salvas. Deseja realmente sair?')) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Load the location data
+  load();
+  const API_URL = '/locacoes';
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const locacaoData = params.get('data'); // Get serialized data if available
+  
+  const errorEl = document.getElementById('editError');
+  const veiculoInfo = document.getElementById('veiculoInfo');
+  const clienteInfo = document.getElementById('clienteInfo');
+  const locInicio = document.getElementById('locInicio');
+  const locFim = document.getElementById('locFim');
+  const locStatus = document.getElementById('locStatus');
+  const locacaoId = document.getElementById('locacaoId');
+  const saveBtn = document.getElementById('saveBtn');
+  
+  // Store the original data for comparing changes
+  let originalData = null;
+
+  function toInput(d) { return d ? new Date(d).toISOString().slice(0,16) : ''; }
+  
+  // Function to show status messages
+  function showStatus(message, isError = false) {
+    errorEl.textContent = message;
+    if (isError) {
+      errorEl.classList.remove('d-none', 'alert-success');
+      errorEl.classList.add('alert-danger');
+    } else {
+      errorEl.classList.remove('d-none', 'alert-danger');
+      errorEl.classList.add('alert-success');
+    }
+  }
+  
+  // Function to check if form data has changed compared to original data
+  function hasFormChanged() {
+    if (!originalData) return false;
+    
+    const currentInicio = locInicio.value;
+    const currentFim = locFim.value;
+    const currentStatus = locStatus.value;
+    
+    return currentInicio !== originalData.inicio || 
+           currentFim !== originalData.fim || 
+           currentStatus !== originalData.status;
+  }
+  
+  // Function to update save button state
+  function updateSaveButtonState() {
+    saveBtn.disabled = !hasFormChanged();
+  }
+
+  if (!id) {
+    showStatus('ID da locação não informado', true);
+    saveBtn.disabled = true;
+    return;
+  }
+
+  async function load() {
+    try {
+      // First try to use data passed in URL parameter if available
+      if (locacaoData) {
+        try {
+          const loc = JSON.parse(decodeURIComponent(locacaoData));
+          populateForm(loc);
+          return;
+        } catch (parseErr) {
+          console.error('Failed to parse location data from URL:', parseErr);
+        }
+      }
+      
+      // Try to get all locations and filter by ID
+      const res = await fetch(`${API_URL}`);
+      
+      if (!res.ok) {
+        throw new Error('Não foi possível carregar as locações. Status: ' + res.status);
+      }
+      
+      const locacoes = await res.json();
+      const loc = locacoes.find(l => l.id == id);
+      
+      if (!loc) {
+        throw new Error(`Locação com ID ${id} não encontrada.`);
+      }
+      
+      populateForm(loc);
+    } catch (err) {
+      console.error('Error loading location:', err);
+      showStatus('Erro ao carregar locação: ' + err.message, true);
+      saveBtn.disabled = true;
+    }
+  }
+  
+  function populateForm(loc) {
+    locacaoId.value = loc.id;
+    veiculoInfo.value = loc.Veiculo ? `${loc.Veiculo.marca} ${loc.Veiculo.modelo} (${loc.Veiculo.placa || ''})` : 'Veículo não especificado';
+    clienteInfo.value = loc.Cliente ? `${loc.Cliente.nome} (${loc.Cliente.email || ''})` : 'Cliente não especificado';
+    locInicio.value = toInput(loc.inicio);
+    locFim.value = toInput(loc.fim);
+    locStatus.value = loc.status || 'ativa';
+    
+    // Store original data for comparison
+    originalData = {
+      inicio: locInicio.value,
+      fim: locFim.value,
+      status: locStatus.value
+    };
+    
+    // Initial state of save button
+    updateSaveButtonState();
+    
+    // Add event listeners to detect changes
+    ['locInicio', 'locFim', 'locStatus'].forEach(id => {
+      document.getElementById(id).addEventListener('change', updateSaveButtonState);
+    });
+  }
+      
+      // Initial state of save button
+      updateSaveButtonState();
+      
+      // Add event listeners to detect changes
+      ['locInicio', 'locFim', 'locStatus'].forEach(id => {
+        document.getElementById(id).addEventListener('change', updateSaveButtonState);
+      });
+      
+    } catch (err) {
+      console.error('Error loading location:', err);
+      showStatus('Erro ao carregar locação: ' + err.message, true);
+      saveBtn.disabled = true;
+    }
+  }
+
+  function validate() {
+    const a = new Date(locInicio.value);
+    const b = new Date(locFim.value);
+    if (isNaN(a) || isNaN(b) || a >= b) {
+      showStatus('Data de início deve ser anterior à data de fim', true);
+      return false;
+    }
+    errorEl.classList.add('d-none');
+    return true;
+  }
+
+  document.getElementById('locacaoEditForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Don't submit if nothing changed
+    if (!hasFormChanged()) {
+      showStatus('Nenhuma alteração detectada', true);
+      return;
+    }
+    
+    // Validate form data
+    if (!validate()) return;
+    
+    const inicio = locInicio.value;
+    const fim = locFim.value;
+    const status = locStatus.value;
+    
+    try {
+      showStatus('Salvando alterações...', false);
+      saveBtn.disabled = true;
+      
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inicio, fim, status })
+      });
+      
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'status ' + res.status);
+      }
+      
+      // Update original data after successful save
+      originalData = { inicio, fim, status };
+      updateSaveButtonState();
+      
+      showStatus('Locação atualizada com sucesso!', false);
+      
+      // Add a short delay before redirecting to show the success message
+      setTimeout(() => {
+        window.location.href = '/locacoes.html';
+      }, 1500);
+      
+    } catch (err) {
+      console.error('Error updating location:', err);
+      showStatus('Erro ao salvar: ' + err.message, true);
+      saveBtn.disabled = false;
+    }
+  });
+
+  // Add cancel button listener to confirm before navigating away if there are changes
+  document.querySelector('a.btn-secondary').addEventListener('click', (e) => {
+    if (hasFormChanged()) {
+      if (!confirm('Você tem alterações não salvas. Deseja realmente sair?')) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Load the location data
+  load();
+});

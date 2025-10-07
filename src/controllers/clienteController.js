@@ -1,8 +1,17 @@
 import Cliente from "../models/Cliente.js";
+import Locacao from "../models/Locacao.js";
+import Veiculo from "../models/Veiculo.js";
 
 export const getAll = async (req, res) => {
     const clientes = await Cliente.findAll();
     res.json(clientes);
+};
+
+export const getById = async (req, res) => {
+    const { id } = req.params;
+    const cliente = await Cliente.findByPk(id);
+    if (!cliente) return res.status(404).json({ error: 'Cliente não encontrado' });
+    res.json(cliente);
 };
 
 export const create = async (req, res) => {
