@@ -17,4 +17,4 @@ function dumpRoutes() {
 }
 
 dumpRoutes();
-// Run this script with: node --loader ts-node/esm scripts/list_routes.jss
+// Run this script with: node --loader ts-node/esm scripts/list_routes.jsss
