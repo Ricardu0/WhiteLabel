@@ -57,7 +57,6 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'locadora2'
-          slot-name: 'Production'
+          app-name: 'locadora3
           package: .
           
