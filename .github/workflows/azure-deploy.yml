@@ -5,7 +5,7 @@ on:
     branches:
       - main
   workflow_dispatch:
-    # Permite executar o workflow manualmente de maneira eficiente e controlada
+    # Permite executar o workflow manualmente de maneira eficiente e
 
 env:
   AZURE_RESOURCE_GROUP: whitelabel-rg
@@ -51,6 +51,11 @@ jobs:
           
       - name: Zip artifact for deployment
         run: zip -r release.zip . -x "node_modules/*" "*.git*"
+          
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
           
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
