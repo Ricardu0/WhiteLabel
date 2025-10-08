@@ -59,7 +59,7 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
+
       - name: Create .env file
         run: |
           echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
@@ -74,7 +74,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'locadora'
+          app-name: 'locadora2'
           slot-name: 'Production'
           package: .
           
